@@ -15,7 +15,7 @@ export default function Home() {
     </div>
     <div className="h-1 bg-white mx-50 opacity-10"></div>
     <div className="text-white font-bold container mx-auto">
-      <h1 className="text-center my-8 text-lg">Your fans can buy you a chai</h1>
+      <h2 className="text-center my-8 text-lg">Your fans can buy you a chai</h2>
      <div className="flex justify-around">
        <div className="flex gap-2 flex-col items-center justify-center">
         <img className="w-20 bg-gray-500 rounded-full p-2" src="man.gif" alt="man" />
@@ -36,12 +36,12 @@ export default function Home() {
     </div>
     <div className="h-1 bg-white mx-50 opacity-10 my-12"></div>
     <div className="text-white font-bold flex flex-col items-center  container mx-auto">
-      <h1 className="text-center mb-8 text-lg">Your fans can buy you a chai</h1>
+      <h2 className="text-center mb-8 text-lg">Your fans can buy you a chai</h2>
     <iframe width="560" height="315" src="https://www.youtube.com/embed/p0HVLeePLxo?si=3JsTPFNxD6uoO09o&amp;start=12" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </div>
     <div className="h-1 bg-white mx-50 opacity-10 my-12"></div>
     <div className="text-white font-bold container mx-auto">
-      <h1 className="text-center my-8 text-lg">Learn more about us</h1>
+      <h2 className="text-center my-8 text-lg">Learn more about us</h2>
      <div className="flex justify-around">
        <div className="flex gap-2 flex-col items-center justify-center">
         <img className="w-20 bg-gray-500 rounded-full p-2" src="man.gif" alt="man" />
