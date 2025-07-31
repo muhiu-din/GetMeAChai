@@ -37,7 +37,16 @@ export default function Home() {
     <div className="h-1 bg-white mx-50 opacity-10 my-12"></div>
     <div className="text-white font-bold flex flex-col items-center  container mx-auto">
       <h2 className="text-center mb-8 text-lg">Your fans can buy you a chai</h2>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/p0HVLeePLxo?si=3JsTPFNxD6uoO09o&amp;start=12" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+ <iframe
+        width="560"
+        height="315"
+        src="https://www.youtube.com/embed/p0HVLeePLxo?si=3JsTPFNxD6uoO09o&amp;start=12"
+        title="YouTube video player"
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerPolicy="strict-origin-when-cross-origin"
+        allowFullScreen
+      ></iframe>
     </div>
     <div className="h-1 bg-white mx-50 opacity-10 my-12"></div>
     <div className="text-white font-bold container mx-auto">
