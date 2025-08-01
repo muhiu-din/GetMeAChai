@@ -34,7 +34,11 @@ const Dashboard = () => {
           <input type="text" className='py-1 bg-slate-600 rounded-lg' />
         </div>
         <div className='flex w-1/2 my-1 flex-col gap-1'>
-          <label className='font-semibold ' htmlFor="razorpayCredentials">Razorpay Credentials</label>
+          <label className='font-semibold ' htmlFor="razorpayCredentials">Stripe ID</label>
+          <input type="text" className='py-1 bg-slate-600 rounded-lg' />
+        </div>
+        <div className='flex w-1/2 my-1 flex-col gap-1'>
+          <label className='font-semibold ' htmlFor="razorpayCredentials">Stripe Secret</label>
           <input type="text" className='py-1 bg-slate-600 rounded-lg' />
         </div>
         <button className=' w-1/2 text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm  py-2 my-6 text-center '>Save</button>

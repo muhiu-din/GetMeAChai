@@ -1,34 +1,49 @@
-import NextAuth from 'next-auth'
-// import AppleProvider from 'next-auth/providers/apple'
-// import FacebookProvider from 'next-auth/providers/facebook'
-// import GoogleProvider from 'next-auth/providers/google'
-// import EmailProvider from 'next-auth/providers/email'
-import GitHubProvider from 'next-auth/providers/github'
+import NextAuth from "next-auth";
+import GitHubProvider from "next-auth/providers/github";
+import mongoose from "mongoose";
+import User from "@/app/models/User";
 
-export const authoptions = NextAuth({
+// ✅ Reusable DB connection to avoid multiple connects
+const connectDB = async () => {
+  if (mongoose.connection.readyState === 0) {
+    await mongoose.connect("mongodb://localhost:27017/GetMeAChai");
+  }
+};
+
+export const authOptions = {
   providers: [
-    // OAuth authentication providers...
-    // AppleProvider({
-    //   clientId: process.env.APPLE_ID,
-    //   clientSecret: process.env.APPLE_SECRET
-    // }),
-    // FacebookProvider({
-    //   clientId: process.env.FACEBOOK_ID,
-    //   clientSecret: process.env.FACEBOOK_SECRET
-    // }),
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_ID,
-    //   clientSecret: process.env.GOOGLE_SECRET
-    // }),
-    // // Passwordless / email sign in
-    // EmailProvider({
-    //   server: process.env.MAIL_SERVER,
-    //   from: 'NextAuth.js <no-reply@example.com>'
-    // }),
     GitHubProvider({
       clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET
-    })
-  ]
-})
-export { authoptions as GET, authoptions as POST }
+      clientSecret: process.env.GITHUB_SECRET,
+    }),
+  ],
+
+  callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account.provider === "github") {
+ 
+        await connectDB();
+
+        let currentUser = await User.findOne({ email: user.email });
+
+        if (!currentUser) {
+          currentUser = await User.create({
+            email: user.email,
+            username: user.email.split("@")[0],
+          });
+        }
+
+
+        user.name = currentUser.username;
+
+        return true;
+      }
+ 
+    },
+  
+  },
+};
+
+
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
