@@ -2,13 +2,8 @@ import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import mongoose from "mongoose";
 import User from "@/app/models/User";
+import connectDB from "@/app/db/connectDB";
 
-// ✅ Reusable DB connection to avoid multiple connects
-const connectDB = async () => {
-  if (mongoose.connection.readyState === 0) {
-    await mongoose.connect("mongodb://localhost:27017/GetMeAChai");
-  }
-};
 
 export const authOptions = {
   providers: [
@@ -31,17 +26,24 @@ export const authOptions = {
             email: user.email,
             username: user.email.split("@")[0],
           });
+          
         }
-
-
-        user.name = currentUser.username;
 
         return true;
       }
  
-    },
+    }, 
   
-  },
+ 
+  async session({session}){
+    await connectDB();
+    const dbUser = await User.findOne({email: session.user.email})
+     console.log(dbUser);
+    
+    session.user.name = dbUser.username;
+    return session
+  }
+   },
 };
 
 
