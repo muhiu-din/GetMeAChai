@@ -26,8 +26,8 @@ export async function createCheckoutSession(userId) {
       },
     ],
     mode: "payment",
-    success_url: `${process.env.NEXTAUTH_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.NEXTAUTH_URL}/cancel`,
+    success_url: `${process.env.NEXTAUTH_URL}/${user.username}?success=true&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.NEXTAUTH_URL}/${user.username}?canceled=true`,
     metadata: {
       userId: user._id.toString(),
       username: user.username,

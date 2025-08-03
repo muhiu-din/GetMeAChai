@@ -17,7 +17,7 @@ export const authOptions = {
 
       if (user) {
         session.user._id = user._id.toString(); // ✅ include _id
-        session.user.username = user.username;
+        session.user.name = user.username;
       }
 
       return session;
