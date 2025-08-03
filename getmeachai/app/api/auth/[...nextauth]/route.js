@@ -1,9 +1,7 @@
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
-import mongoose from "mongoose";
-import User from "@/app/models/User";
 import connectDB from "@/app/db/connectDB";
-
+import User from "@/app/models/User";
 
 export const authOptions = {
   providers: [
@@ -12,40 +10,32 @@ export const authOptions = {
       clientSecret: process.env.GITHUB_SECRET,
     }),
   ],
-
   callbacks: {
-    async signIn({ user, account, profile }) {
-      if (account.provider === "github") {
- 
-        await connectDB();
+    async session({ session }) {
+      await connectDB();
+      const user = await User.findOne({ email: session.user.email });
 
-        let currentUser = await User.findOne({ email: user.email });
-
-        if (!currentUser) {
-          currentUser = await User.create({
-            email: user.email,
-            username: user.email.split("@")[0],
-          });
-          
-        }
-
-        return true;
+      if (user) {
+        session.user._id = user._id.toString(); // ✅ include _id
+        session.user.username = user.username;
       }
- 
-    }, 
-  
- 
-  async session({session}){
-    await connectDB();
-    const dbUser = await User.findOne({email: session.user.email})
-     console.log(dbUser);
-    
-    session.user.name = dbUser.username;
-    return session
-  }
-   },
-};
 
+      return session;
+    },
+
+    async signIn({ user }) {
+      await connectDB();
+      const exists = await User.findOne({ email: user.email });
+      if (!exists) {
+        await User.create({
+          email: user.email,
+          username: user.name?.replace(/\s/g, "") || user.login,
+        });
+      }
+      return true;
+    },
+  },
+};
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

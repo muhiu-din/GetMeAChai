@@ -7,14 +7,11 @@ import connectDB from "../db/connectDB";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// ✅ Create Stripe Checkout Session
 export async function createCheckoutSession(userId) {
   await connectDB();
 
   const user = await User.findById(userId);
-  if (!user) {
-    throw new Error("User not found");
-  }
+  if (!user) throw new Error("User not found");
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
@@ -23,7 +20,7 @@ export async function createCheckoutSession(userId) {
         price_data: {
           currency: "usd",
           product_data: { name: "Premium Subscription" },
-          unit_amount: 1000, // $10 in cents
+          unit_amount: 1000, // $10
         },
         quantity: 1,
       },
@@ -40,7 +37,6 @@ export async function createCheckoutSession(userId) {
   return session;
 }
 
-// ✅ Handle Payment After Success
 export async function handlePaymentSuccess(sessionId) {
   await connectDB();
 
@@ -49,13 +45,12 @@ export async function handlePaymentSuccess(sessionId) {
 
   const metadata = session.metadata || {};
 
-  // ✅ Create Payment according to your exact model
   const payment = await Payment.create({
     name: metadata.username || "Unknown",
-    to_user: metadata.to_user || "admin", // Or whoever receives the payment
-    oid: session.id,  // Using Stripe session ID
+    to_user: metadata.to_user || "admin",
+    oid: session.id,
     message: metadata.message || "Payment for subscription",
-    amount: (session.amount_total || 0) / 100, // convert cents to USD
+    amount: (session.amount_total || 0) / 100,
     done: session.payment_status === "paid",
   });
 

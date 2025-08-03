@@ -31,16 +31,17 @@ export default function PaymentPage({ username }) {
     setLoading(true);
 
     try {
-      const res = await fetch("/actions/useractions.js", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: session.user._id, // ✅ automatically from logged-in user
-          amount: Number(amount),
-          name: form.name,
-          message: form.message,
-          to_user:username, // the profile user receiving payment
-        }),
+      const res = await fetch("/api/checkout", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+ body: JSON.stringify({
+  userId: session.user._id, // ✅ automatically from logged-in user
+  amount: Number(amount),
+  name: form.name,
+  message: form.message,
+  to_user: username, // the profile user receiving payment
+}),
+
       });
 
       const data = await res.json();
