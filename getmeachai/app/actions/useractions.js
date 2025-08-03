@@ -31,6 +31,8 @@ export async function createCheckoutSession(userId) {
     metadata: {
       userId: user._id.toString(),
       username: user.username,
+      message: "Payment for subscription", // ✅ If you want custom metadata
+      to_user: "admin",                   // ✅ Set explicitly if needed
     },
   });
 
@@ -38,13 +40,16 @@ export async function createCheckoutSession(userId) {
 }
 
 export async function handlePaymentSuccess(sessionId) {
-  await connectDB();
+  // await connectDB();
+  console.log('Handle payment runninbg');
+  
 
   const session = await stripe.checkout.sessions.retrieve(sessionId);
   if (!session) throw new Error("Session not found");
 
   const metadata = session.metadata || {};
 
+  // ✅ Save directly to MongoDB
   const payment = await Payment.create({
     name: metadata.username || "Unknown",
     to_user: metadata.to_user || "admin",
@@ -53,6 +58,8 @@ export async function handlePaymentSuccess(sessionId) {
     amount: (session.amount_total || 0) / 100,
     done: session.payment_status === "paid",
   });
+
+  console.log("✅ Payment saved to MongoDB:", payment);
 
   return payment;
 }

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
+import { handlePaymentSuccess } from "@/app/actions/useractions";
 
 export default function PaymentPage({ username }) {
   const { data: session } = useSession(); // get logged-in user
@@ -46,6 +47,7 @@ export default function PaymentPage({ username }) {
 
       const data = await res.json();
       if (data.url) {
+      
         window.location.href = data.url; // Redirect to Stripe Checkout
       } else {
         alert("Error creating checkout session");
