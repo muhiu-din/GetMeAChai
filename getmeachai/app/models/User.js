@@ -6,6 +6,8 @@ const  UserSchema = new mongoose.Schema({
     username:{type:String ,required:true},
     profilepic:{type:String},
     coverpic:{type:String},
+    stripeID:{type:String},
+    stripeSecret:{type:String},
     createdAt:{type:Date ,default:Date.now},
     updatedAt:{type:Date ,default:Date.now},
 

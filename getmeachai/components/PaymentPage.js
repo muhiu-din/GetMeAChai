@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState ,useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { handlePaymentSuccess } from "@/app/actions/useractions";
 
@@ -7,6 +7,7 @@ export default function PaymentPage({ username }) {
   const { data: session } = useSession(); // get logged-in user
   const [form, setForm] = useState({ name: "", message: "", amount: "" });
   const [loading, setLoading] = useState(false);
+  const [displayBox,setdisplayBox] = useState([]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -32,18 +33,21 @@ export default function PaymentPage({ username }) {
     setLoading(true);
 
     try {
+
+      console.log("Creating checkout session with amount:", amount);
       const res = await fetch("/api/checkout", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
  body: JSON.stringify({
-  userId: session.user._id, // ✅ automatically from logged-in user
+  userId: session.user._id,
   amount: Number(amount),
   name: form.name,
   message: form.message,
-  to_user: username, // the profile user receiving payment
+  to_user: username,
 }),
 
       });
+       console.log("Creating checkout session with amount2:", amount);
 
       const data = await res.json();
       if (data.url) {
@@ -59,6 +63,30 @@ export default function PaymentPage({ username }) {
       setLoading(false);
     }
   };
+  const fetchData = async () => {
+    try{
+      console.log('Fetching data from paymentDb');
+      let res = await fetch(`/api/paymentDb?username=${username}`);
+      let result = await res.json()
+      console.log('Data fetched from paymentDb:', result);
+      setdisplayBox(result)
+      if(!res.ok){
+        console.log('Failed fetching data tery box error not ok');
+        
+        alert(result.message)
+      }
+    }catch(error){
+      alert(error.message)
+      console.log("catch box running while fetching data")
+    }
+  }
+
+  useEffect(() => {
+   console.log('Use Effect runnning');
+   fetchData();
+   
+  }, [])
+  
 
   return (
     <div className="min-h-screen">
@@ -95,20 +123,20 @@ export default function PaymentPage({ username }) {
         <div className="bg-slate-900 rounded-lg p-6 my-10 w-1/2 h-auto">
           <h1 className="text-2xl font-bold">Supporters</h1>
           <ul className="mx-4">
-            {Array(4)
-              .fill(0)
-              .map((_, i) => (
+           
+               {displayBox.length === 0 ? ( "No Donations yet🥲") :  (displayBox.map((item,index) => (
                 <div
-                  key={i}
+                  key={index}
                   className="flex flex-row my-3 gap-2 items-center"
                 >
                   <img className="w-9" src="avatar.gif" alt="" />
                   <li>
-                    Ahmad donated <span className="font-bold">$4</span> with a
-                    message: "Lots of love❤️"
+                    {item.name} donated <span className="font-bold">{item.amount}$</span> with a
+                    message: "{item.message}"
                   </li>
                 </div>
-              ))}
+               ))) }
+             
           </ul>
         </div>
 

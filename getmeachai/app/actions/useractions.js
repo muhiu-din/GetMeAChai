@@ -3,41 +3,39 @@
 import Stripe from "stripe";
 import User from "../models/User";
 import Payment from "../models/Payment";
-import connectDB from "../db/connectDB";
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export async function createCheckoutSession(userId) {
-  await connectDB();
-
+export async function createCheckoutSession({ userId, amount, name, message, to_user }) {
   const user = await User.findById(userId);
-  if (!user) throw new Error("User not found");
-
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
-    line_items: [
-      {
-        price_data: {
-          currency: "usd",
-          product_data: { name: "Premium Subscription" },
-          unit_amount: 1000, // $10
+  try {
+    return await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "usd",
+            product_data: { name: `Donation to ${to_user}` },
+            unit_amount: Math.round(Number(amount) * 100), // ✅ must be integer
+          },
+          quantity: 1,
         },
-        quantity: 1,
-      },
-    ],
-    mode: "payment",
+      ],
+      mode: "payment",
     success_url: `${process.env.NEXTAUTH_URL}/${user.username}?success=true&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.NEXTAUTH_URL}/${user.username}?canceled=true`,
-    metadata: {
-      userId: user._id.toString(),
-      username: user.username,
-      message: "Payment for subscription", // ✅ If you want custom metadata
-      to_user: "admin",                   // ✅ Set explicitly if needed
-    },
-  });
-
-  return session;
+      metadata: {
+        userId: String(userId || ""),
+        username: String(name || "Unknown"),
+        message: String(message || ""),
+        to_user: String(to_user || "admin"),
+      },
+    });
+  } catch (err) {
+    console.error("❌ Stripe create session failed:", err);
+    throw err;
+  }
 }
+
 
 export async function handlePaymentSuccess(sessionId) {
   // await connectDB();
