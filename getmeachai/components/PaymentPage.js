@@ -1,13 +1,14 @@
 "use client";
 import React, { useState ,useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { handlePaymentSuccess } from "@/app/actions/useractions";
+
 
 export default function PaymentPage({ username }) {
   const { data: session } = useSession(); // get logged-in user
   const [form, setForm] = useState({ name: "", message: "", amount: "" });
   const [loading, setLoading] = useState(false);
   const [displayBox,setdisplayBox] = useState([]);
+  const [userData, setUserData] = useState({}); // to store user data
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -80,11 +81,28 @@ export default function PaymentPage({ username }) {
       console.log("catch box running while fetching data")
     }
   }
+  const fetchUserData = async () => {
+    try{
+      console.log('Fetching data from userDb');
+      let res = await fetch(`/api/userDb?username=${username}`);
+      let result = await res.json()
+      console.log('Data fetched from userDb:', result);
+      setUserData(result)
+      if(!res.ok){
+        console.log('Failed fetching data tery box error not ok');
+        
+        alert(result.message)
+      }
+    }catch(error){
+      alert(error.message)
+      console.log("catch box running while fetching data")
+    }
+  }
 
   useEffect(() => {
    console.log('Use Effect runnning');
    fetchData();
-   
+   fetchUserData();
   }, [])
   
 
@@ -93,12 +111,12 @@ export default function PaymentPage({ username }) {
       <div className="cover w-full relative">
         <img
           className="w-full h-full object-cover"
-          src="https://c10.patreonusercontent.com/4/patreon-media/p/campaign/5176467/0c71e6610cf24d8497bf7e8b7452be1e/eyJ3IjoxOTIwLCJ3ZSI6MX0%3D/4.png?token-hash=S22sZbbw8Dt85kJj03PinxVUQfu66QkWoqjR6oY7Ky4%3D&token-time=1756944000"
+          src={userData.coverPicture || "https://via.placeholder.com/1500x500"}
           alt="Cover"
         />
         <img
           className="absolute w-30 h-30 top-60 right-143 border-2 border-white rounded-lg"
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhUD52r4_R4X0BW4GzaVcdOknXQhVp9-HQDQ&s"
+          src={userData.profilePicture || "https://via.placeholder.com/150"}
           alt="Profile"
         />
       </div>

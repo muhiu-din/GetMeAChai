@@ -14,7 +14,7 @@ export default function Dashboard() {
   const [coverPicture, setCoverPicture] = useState("");
   const [stripeID, setStripeID] = useState("");
   const [stripeSecret, setStripeSecret] = useState("");
-  const [displayBox, setDisplayBox] = useState([]);
+  const [userData, setuserData] = useState({}); // ✅ object, not array
 
   // Redirect if not logged in
   useEffect(() => {
@@ -26,18 +26,27 @@ export default function Dashboard() {
     }
   }, [session]);
 
-  // Fetch payments
+  // Fetch user data
   const fetchData = async (uname) => {
     try {
       if (!uname) return;
-      console.log("Fetching payments for:", uname);
-
-      const res = await fetch(`/api/paymentDb?username=${uname}`);
+      const res = await fetch(`/api/userDb?username=${uname}`);
       const result = await res.json();
-      console.log("Payments fetched:", result);
+      console.log("User fetched:", result);
 
-      setDisplayBox(result);
-      if (!res.ok) alert(result.message || "Error fetching payments");
+      if (!res.ok) throw new Error(result.message || "Error fetching user");
+
+      // ✅ Your backend returns user object directly
+      setuserData(result);
+
+      // Pre-fill inputs with fetched data
+      setName(result.name || "");
+      setEmail(result.email || "");
+      setUsername(result.username || "");
+      setProfilePicture(result.profilePicture || "");
+      setCoverPicture(result.coverPicture || "");
+      setStripeID(result.stripeID || "");
+      setStripeSecret(result.stripeSecret || "");
     } catch (error) {
       console.error("Fetch failed:", error);
       alert(error.message);
@@ -54,35 +63,26 @@ export default function Dashboard() {
   // Save profile
   const handleSave = async (e) => {
     e.preventDefault();
-    console.log("Saving profile:", {
-      name,
-      email,
-      username,
-      profilePicture,
-      coverPicture,
-      stripeID,
-      stripeSecret,
-    });
 
-    const userData = {
-      name,
-      email,
-      username,
-      profilePicture,
-      coverPicture,
-      stripeID,
-      stripeSecret,
-    };
+    const updatedData = {
+    name: name || userData.name,
+    email: email || userData.email,
+    username: username || userData.username,
+    profilePicture: profilePicture || userData.profilePicture,
+    coverPicture: coverPicture || userData.coverPicture,
+    stripeID: stripeID || userData.stripeID,
+    stripeSecret: stripeSecret || userData.stripeSecret,
+  };
 
-    const res = await fetch(`/api/paymentDb?username=${username}`, {
+    const res = await fetch(`/api/userDb?username=${username}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
+      body: JSON.stringify(updatedData),
     });
 
     if (res.ok) {
       alert("Profile updated successfully!");
-      fetchData(username); // refresh payments
+      fetchData(username); // refresh
     } else {
       alert("Failed to update profile.");
     }
@@ -96,75 +96,25 @@ export default function Dashboard() {
 
       {/* Profile Form */}
       <form onSubmit={handleSave} className="flex flex-col items-center">
-        <div className="flex w-1/2 my-1 flex-col gap-1">
-          <label className="font-semibold">Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="py-1 px-2 bg-slate-600 rounded-lg"
-          />
-        </div>
-
-        <div className="flex w-1/2 my-1 flex-col gap-1">
-          <label className="font-semibold">Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="py-1 px-2 bg-slate-600 rounded-lg"
-          />
-        </div>
-
-        <div className="flex w-1/2 my-1 flex-col gap-1">
-          <label className="font-semibold">Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="py-1 px-2 bg-slate-600 rounded-lg"
-          />
-        </div>
-
-        <div className="flex w-1/2 my-1 flex-col gap-1">
-          <label className="font-semibold">Profile Picture</label>
-          <input
-            type="text"
-            value={profilePicture}
-            onChange={(e) => setProfilePicture(e.target.value)}
-            className="py-1 px-2 bg-slate-600 rounded-lg"
-          />
-        </div>
-
-        <div className="flex w-1/2 my-1 flex-col gap-1">
-          <label className="font-semibold">Cover Picture</label>
-          <input
-            type="text"
-            value={coverPicture}
-            onChange={(e) => setCoverPicture(e.target.value)}
-            className="py-1 px-2 bg-slate-600 rounded-lg"
-          />
-        </div>
-
-        <div className="flex w-1/2 my-1 flex-col gap-1">
-          <label className="font-semibold">Stripe ID</label>
-          <input
-            type="text"
-            value={stripeID}
-            onChange={(e) => setStripeID(e.target.value)}
-            className="py-1 px-2 bg-slate-600 rounded-lg"
-          />
-        </div>
-
-        <div className="flex w-1/2 my-1 flex-col gap-1">
-          <label className="font-semibold">Stripe Secret</label>
-          <input
-            type="text"
-            value={stripeSecret}
-            onChange={(e) => setStripeSecret(e.target.value)}
-            className="py-1 px-2 bg-slate-600 rounded-lg"
-          />
-        </div>
+        {[
+          ["Name", name, setName],
+          ["Email", email, setEmail],
+          ["Username", username, setUsername],
+          ["Profile Picture", profilePicture, setProfilePicture],
+          ["Cover Picture", coverPicture, setCoverPicture],
+          ["Stripe ID", stripeID, setStripeID],
+          ["Stripe Secret", stripeSecret, setStripeSecret],
+        ].map(([label, value, setter]) => (
+          <div key={label} className="flex w-1/2 my-1 flex-col gap-1">
+            <label className="font-semibold">{label}</label>
+            <input
+              type="text"
+              value={value || ""}
+              onChange={(e) => setter(e.target.value)}
+              className="py-1 px-2 bg-slate-600 rounded-lg"
+            />
+          </div>
+        ))}
 
         <button
           type="submit"
@@ -176,8 +126,6 @@ export default function Dashboard() {
           Save
         </button>
       </form>
-
-      
     </div>
   );
 }
