@@ -3,13 +3,15 @@ import React, { useState ,useEffect } from "react";
 import { useSession } from "next-auth/react";
 
 
+
+
 export default function PaymentPage({ username }) {
   const { data: session } = useSession(); // get logged-in user
   const [form, setForm] = useState({ name: "", message: "", amount: "" });
   const [loading, setLoading] = useState(false);
   const [displayBox,setdisplayBox] = useState([]);
   const [userData, setUserData] = useState({}); // to store user data
-
+ 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -107,6 +109,7 @@ export default function PaymentPage({ username }) {
   
 
   return (
+
     <div className="min-h-screen">
       <div className="cover w-full relative">
         <img
@@ -115,23 +118,22 @@ export default function PaymentPage({ username }) {
           alt="Cover"
         />
         <img
-          className="absolute w-30 h-30 top-60 right-143 border-2 border-white rounded-lg"
+          className="absolute w-20 h-20 md:w-30 md:h-30 md:top-[76%] top-[65%] right-[40%] md:right-[45%] border-2 border-white rounded-lg"
           src={userData.profilePicture || "https://via.placeholder.com/150"}
           alt="Profile"
         />
       </div>
 
       {/* Profile Info */}
-      <div className="flex flex-col items-center justify-center mt-12 mb-4 gap-2">
+      <div className="flex md:px-0 px-6  flex-col items-center justify-center mt-12 mb-4 gap-2">
         <div className="font-bold text-lg">@{username}</div>
         <div className="text-slate-200">
-          Creating Pure, a weather and graphics mod for Assetto Corsa/CSP
+         {userData.name} is collecting donations...Lets support him!
         </div>
         <div className="text-slate-400">
           <ul className="list-disc flex flex-row justify-center gap-6">
-            <li>317,541 members</li>
-            <li>76 posts</li>
-            <li>$54,610/month</li>
+            <li>{displayBox.length} payments</li>
+            <li>${displayBox.reduce((acc, item) => acc + item.amount, 0)} raised</li>
           </ul>
         </div>
       </div>
